@@ -1,5 +1,7 @@
 FROM ubuntu:16.04
 
+MAINTAINER Sohel Amin
+
 RUN locale-gen en_US.UTF-8
 
 ENV LANG en_US.UTF-8
@@ -8,18 +10,20 @@ ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update \
 
-    && apt-get install -y curl zip unzip git \
-    && apt-get install -y php-fpm php-cli php-mcrypt php-gd php-mysql \
-       php-pgsql php-imap php-memcached php-mbstring php-xml php-curl \
+    && apt-get install -y curl zip unzip git software-properties-common \
+    && add-apt-repository -y ppa:ondrej/php \
+    && apt-get update \
+    && apt-get install -y php5.6-fpm php5.6-cli php5.6-mcrypt php5.6-gd php5.6-mysql \
+       php5.6-pgsql php5.6-imap php-memcached php5.6-mbstring php5.6-xml php5.6-curl php-xdebug \
     && php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
     && mkdir /run/php \
+    && apt-get remove -y --purge software-properties-common \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sed -i -e "s/;\?daemonize\s*=\s*yes/daemonize = no/g" /etc/php/7.0/fpm/php-fpm.conf
-RUN sed -i s'/listen = \/run\/php\/php7.0-fpm.sock/listen = 0.0.0.0:9000/' /etc/php/7.0/fpm/pool.d/www.conf
-
+RUN sed -i -e "s/;\?daemonize\s*=\s*yes/daemonize = no/g" /etc/php/5.6/fpm/php-fpm.conf
+RUN sed -i s'/listen = \/run\/php\/php5.6-fpm.sock/listen = 0.0.0.0:9000/' /etc/php/5.6/fpm/pool.d/www.conf
 
 EXPOSE 9000
 
-CMD ["php-fpm7.0"]
+CMD ["php-fpm5.6"]
